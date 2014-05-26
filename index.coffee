@@ -37,7 +37,7 @@ class Client
             .then null, (err)->
                 reject err
 
-    call: (namespace, method, data, callback)->
+    call: (namespace, context, method, data)->
         new Promise (resolve, reject)=>
             @connect().then =>
                 msgId = crypto.randomBytes(16).toString 'hex'
@@ -50,6 +50,9 @@ class Client
                     method: method
                     namespace: namespace
                     version: @version
+                if context
+                    for own key, value of context
+                        payload["_context_#{key}"] = value
 
                 payload = new Buffer JSON.stringify
                     'oslo.message': JSON.stringify payload
