@@ -23,13 +23,20 @@ class Client
                     @channel.assertQueue @replayQ, autoDelete: yes, durable: no
                     @channel.bindQueue @replayQ, @replayQ, @replayQ
 
-                    @channel.consume @replayQ, ((msg)=>
+                    onMsg = (msg)=>
                         decoded = JSON.parse msg.content.toString()
                         content = JSON.parse decoded['oslo.message']
                         if content.ending then return
-                        signal.deliver content._msg_id, content)
+                        signal.deliver content._msg_id, content
 
-                    resolve this
+                    @channel.consume(@replayQ, onMsg).then =>
+                        resolve this
+                    .then null, (err)->
+                        reject err
+                .then null, (err)->
+                    reject err
+            .then null, (err)->
+                reject err
 
     call: (namespace, method, data, callback)->
         new Promise (resolve, reject)=>
@@ -57,17 +64,17 @@ class Client
                     priority: 0
                     deliveryMode: 2
 
-                signal.waitfor msgId, (data)->
-                    if data.failure
-                        reject JSON.parse data.failure
-                    else
-                        resolve data.result
-                .till @timeout, ->
-                    reject "timeout"
+                do(msgId, reject, resolve)=>
 
-    close: ->
-        if @channel
-            @channel.unbindQueue @replayQ, @replayQ, @replayQ
+                    signal.waitfor msgId, (data)->
+                        if data.failure
+                            reject JSON.parse data.failure
+                        else
+                            resolve data.result
+                    .till @timeout, ->
+                        reject
+                            message: 'timeout'
+                            message_id: msgId
 
 
 module.exports = Client

@@ -24,6 +24,7 @@
         return function(resolve, reject) {
           return amqp.connect(_this.url).then(function(connection) {
             return connection.createChannel().then(function(channel) {
+              var onMsg;
               _this.channel = channel;
               _this.replayQ = "reply_" + (crypto.randomBytes(16).toString('hex'));
               _this.channel.assertExchange(_this.replayQ, 'direct', {
@@ -35,7 +36,7 @@
                 durable: false
               });
               _this.channel.bindQueue(_this.replayQ, _this.replayQ, _this.replayQ);
-              _this.channel.consume(_this.replayQ, (function(msg) {
+              onMsg = function(msg) {
                 var content, decoded;
                 decoded = JSON.parse(msg.content.toString());
                 content = JSON.parse(decoded['oslo.message']);
@@ -43,9 +44,17 @@
                   return;
                 }
                 return signal.deliver(content._msg_id, content);
-              }));
-              return resolve(_this);
+              };
+              return _this.channel.consume(_this.replayQ, onMsg).then(function() {
+                return resolve(_this);
+              }).then(null, function(err) {
+                return reject(err);
+              });
+            }).then(null, function(err) {
+              return reject(err);
             });
+          }).then(null, function(err) {
+            return reject(err);
           });
         };
       })(this));
@@ -81,24 +90,23 @@
               priority: 0,
               deliveryMode: 2
             });
-            return signal.waitfor(msgId, function(data) {
-              if (data.failure) {
-                return reject(JSON.parse(data.failure));
-              } else {
-                return resolve(data.result);
-              }
-            }).till(_this.timeout, function() {
-              return reject("timeout");
-            });
+            return (function(msgId, reject, resolve) {
+              return signal.waitfor(msgId, function(data) {
+                if (data.failure) {
+                  return reject(JSON.parse(data.failure));
+                } else {
+                  return resolve(data.result);
+                }
+              }).till(_this.timeout, function() {
+                return reject({
+                  message: 'timeout',
+                  message_id: msgId
+                });
+              });
+            })(msgId, reject, resolve);
           });
         };
       })(this));
-    };
-
-    Client.prototype.close = function() {
-      if (this.channel) {
-        return this.channel.unbindQueue(this.replayQ, this.replayQ, this.replayQ);
-      }
     };
 
     return Client;
