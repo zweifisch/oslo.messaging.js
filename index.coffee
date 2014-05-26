@@ -1,4 +1,3 @@
-
 amqp = require 'amqplib'
 crypto = require 'crypto'
 Promise = require 'promise'
@@ -75,6 +74,8 @@ class Client
                         reject
                             message: 'timeout'
                             message_id: msgId
+            .then null, (err)->
+                reject err
 
 
 module.exports = Client

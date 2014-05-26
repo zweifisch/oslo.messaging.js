@@ -104,6 +104,8 @@
                 });
               });
             })(msgId, reject, resolve);
+          }).then(null, function(err) {
+            return reject(err);
           });
         };
       })(this));
