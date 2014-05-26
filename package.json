@@ -1,16 +1,30 @@
 {
   "name": "oslo.messaging",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "nodejs client for oslo.messaging",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "zf",
   "license": "MIT",
   "dependencies": {
     "amqplib": "^0.1.3",
     "promise": "^5.0.0",
     "too-late": "0.0.2"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/zweifisch/oslo.messaging.js.git"
+  },
+  "keywords": [
+    "oslo.messaging",
+    "amqp",
+    "rabbitmq"
+  ],
+  "bugs": {
+    "url": "https://github.com/zweifisch/oslo.messaging.js/issues"
+  },
+  "homepage": "https://github.com/zweifisch/oslo.messaging.js"
 }
