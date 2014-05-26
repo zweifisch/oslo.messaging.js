@@ -61,7 +61,7 @@
       })(this));
     };
 
-    Client.prototype.call = function(namespace, context, method, data) {
+    Client.prototype.call = function(namespace, context, method, args) {
       return new Promise((function(_this) {
         return function(resolve, reject) {
           return _this.connect().then(function() {
@@ -71,9 +71,7 @@
               _msg_id: msgId,
               _reply_q: _this.replayQ,
               _unique_id: crypto.randomBytes(16).toString('hex'),
-              args: {
-                data: data
-              },
+              args: args,
               method: method,
               namespace: namespace,
               version: _this.version

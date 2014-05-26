@@ -15,7 +15,9 @@ var client = new Client({
     timeout: 5000
 });
 
-client.call('name.space', {context:null}, 'method', param).then(function(data) {
+context = {}
+
+client.call('name.space', context, 'method', {param: 1, param2: false}).then(function(data) {
     console.log(data);
 }).catch(function(err) {
     console.log(err);

@@ -37,7 +37,7 @@ class Client
             .then null, (err)->
                 reject err
 
-    call: (namespace, context, method, data)->
+    call: (namespace, context, method, args)->
         new Promise (resolve, reject)=>
             @connect().then =>
                 msgId = crypto.randomBytes(16).toString 'hex'
@@ -45,8 +45,7 @@ class Client
                     _msg_id: msgId
                     _reply_q: @replayQ
                     _unique_id: crypto.randomBytes(16).toString 'hex'
-                    args:
-                        data: data
+                    args: args
                     method: method
                     namespace: namespace
                     version: @version
