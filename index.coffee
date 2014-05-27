@@ -1,6 +1,6 @@
 amqp = require 'amqplib'
 crypto = require 'crypto'
-Promise = require 'promise'
+wann = require 'when'
 signal = require('too-late')()
 
 
@@ -11,7 +11,7 @@ class Client
 
     connect: ->
         return @connectP if @connectP
-        @connectP = new Promise (resolve, reject)=>
+        @connectP = wann.promise (resolve, reject)=>
             amqp.connect(@url).then (connection)=>
                 connection.createChannel().then (@channel)=>
                     # @channel.assertExchange "#{@exchange}_fanout", 'topic'
@@ -38,7 +38,7 @@ class Client
                 reject err
 
     call: (namespace, context, method, args)->
-        new Promise (resolve, reject)=>
+        wann.promise (resolve, reject)=>
             @connect().then =>
                 msgId = crypto.randomBytes(16).toString 'hex'
                 payload =
