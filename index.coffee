@@ -47,8 +47,9 @@ class Client
                     _unique_id: crypto.randomBytes(16).toString 'hex'
                     args: args
                     method: method
-                    namespace: namespace
                     version: @version
+                if namespace
+                    payload.namespace = namespace
                 if context
                     for own key, value of context
                         payload["_context_#{key}"] = value

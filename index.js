@@ -73,9 +73,11 @@
               _unique_id: crypto.randomBytes(16).toString('hex'),
               args: args,
               method: method,
-              namespace: namespace,
               version: _this.version
             };
+            if (namespace) {
+              payload.namespace = namespace;
+            }
             if (context) {
               for (key in context) {
                 if (!__hasProp.call(context, key)) continue;
