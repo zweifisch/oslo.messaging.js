@@ -2,14 +2,7 @@ amqp = require 'amqplib'
 crypto = require 'crypto'
 wann = require 'when'
 signal = require('too-late')()
-
-
-getSignature = (fn)->
-    params = /\(([\s\S]*?)\)/.exec fn
-    if params and params[1].trim()
-        params[1].split(',').map (x)-> x.trim()
-    else
-        []
+kwfn = require 'keyword-arguments'
 
 
 class Client
@@ -134,18 +127,13 @@ class Client
                     key = if namespace then "#{namespace}:#{method}" else method
                     if key of @consumers
                         for callback in @consumers[key]
-                            signature = getSignature callback
-                            preparedParams = signature.map (name)-> args[name]
-                            callback preparedParams...
-                            for key of args
-                                unless key in signature
-                                    throw new Error "unexpected param '#{key}' for #{namespace} #{method}"
+                            callback args
 
             key = "#{namespace}:#{method}"
             if key of @consumers
-                @consumers[key].push callback
+                @consumers[key].push kwfn callback
             else
-                @consumers[key]= [callback]
+                @consumers[key]= [kwfn callback]
             this
 
 module.exports = Client
