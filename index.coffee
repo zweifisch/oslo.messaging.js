@@ -7,7 +7,7 @@ kwfn = require 'keyword-arguments'
 
 class Client
 
-    constructor: ({@url, @exchange, @topic, @version, @timeout, @ttl})->
+    constructor: ({@url, @exchange, @topic, @version, @timeout, @ttl, @noAck})->
         @consumers = {}
         @ttl or= 60000
 
@@ -31,7 +31,7 @@ class Client
 
                         signal.deliver content._msg_id, content
 
-                    @channel.consume(@replayQ, onMsg).then =>
+                    @channel.consume(@replayQ, onMsg, noAck: @noAck).then =>
                         resolve this
                     .then null, (err)->
                         reject err

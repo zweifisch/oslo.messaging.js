@@ -15,7 +15,7 @@
 
   Client = (function() {
     function Client(_arg) {
-      this.url = _arg.url, this.exchange = _arg.exchange, this.topic = _arg.topic, this.version = _arg.version, this.timeout = _arg.timeout, this.ttl = _arg.ttl;
+      this.url = _arg.url, this.exchange = _arg.exchange, this.topic = _arg.topic, this.version = _arg.version, this.timeout = _arg.timeout, this.ttl = _arg.ttl, this.noAck = _arg.noAck;
       this.consumers = {};
       this.ttl || (this.ttl = 60000);
     }
@@ -49,7 +49,9 @@
                 }
                 return signal.deliver(content._msg_id, content);
               };
-              return _this.channel.consume(_this.replayQ, onMsg).then(function() {
+              return _this.channel.consume(_this.replayQ, onMsg, {
+                noAck: _this.noAck
+              }).then(function() {
                 return resolve(_this);
               }).then(null, function(err) {
                 return reject(err);
