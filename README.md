@@ -5,14 +5,16 @@ nodejs client for oslo.messaging
 ## usage
 
 ```javascript
-var Client = require('oslo.messaging');
+var messaging = require('oslo.messaging');
 
-var client = new Client({
+var client = new messaging.RpcClient({
     url: 'amqp://localhost',
     exchange: 'exchange',
     topic: 'topic',
     version: '1.0',
-    timeout: 5000
+    timeout: 5000,
+    noAck: false,
+    delay: 1000 // reconnection delay
 });
 
 context = {}
