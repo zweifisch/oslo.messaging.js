@@ -7,9 +7,9 @@ log = require('./logger') 'notifier'
 
 class Notifier
 
-    constructor: ({@url, @prefix, @topic, @exchange, @delay, @noAck})->
+    constructor: ({@url, @prefix, @topic, @exchange, @delay, @noAck, @queue})->
         @delay ?= 1000
-        @queue = "#{@prefix || 'notifier'}_#{crypto.randomBytes(16).toString 'hex'}"
+        @queue ?= "#{@prefix || 'notifier'}_#{crypto.randomBytes(16).toString 'hex'}"
         log.debug "queue: #{@queue}"
 
     connect: ->
