@@ -9,7 +9,7 @@ log = require('./logger') 'rpcclient'
 
 class RpcClient
 
-    constructor: ({@url, @exchange, @topic, @version, @timeout, @ttl, @noAck, @delay})->
+    constructor: ({@url, @exchange, @topic, @version, @timeout, @ttl, @noAck, @delay, @messageTtl})->
         @consumers = {}
         @ttl or= 60000
         @delay or= 1000
@@ -23,7 +23,7 @@ class RpcClient
                     connection.createChannel().then (@channel)=>
 
                         @channel.assertExchange @replyQ, 'direct', autoDelete: yes, durable: no
-                        @channel.assertQueue @replyQ, autoDelete: yes, durable: no
+                        @channel.assertQueue @replyQ, autoDelete: yes, durable: no, messageTtl: @messageTtl
                         @channel.bindQueue @replyQ, @replyQ, @replyQ
 
                         onMsg = (msg)=>
