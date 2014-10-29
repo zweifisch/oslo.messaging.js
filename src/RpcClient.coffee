@@ -1,25 +1,31 @@
 crypto = require 'crypto'
+{EventEmitter} = require 'events'
 kwfn = require 'keyword-arguments'
 signal = require('too-late')()
 {promise} = require 'when'
 
 log = require('./logger') 'rpcclient'
-{getConnectionPool} = require './ConnectionPool'
+Connection = require './Connection'
 
 
-class RpcClient
+class RpcClient extends EventEmitter
 
-    constructor: ({@url, @exchange, @topic, @version, @timeout, @ttl, @noAck, @delay, @messageTtl})->
+    constructor: ({@url, @exchange, @topic, @version, @timeout, @ttl, @noAck, @retryDelay, @messageTtl, @maxRetry})->
         @consumers = {}
         @ttl or= 60000
-        @delay or= 1000
+        @retryDelay or= 3000
+        @maxRetry or= 3
         @replyQ = "reply_#{crypto.randomBytes(16).toString 'hex'}"
         log.debug "queue: #{@replyQ}"
+        @connection = Connection.getConnection
+            retryDelay: @retryDelay
+            urls: @url
+            maxRetry: @maxRetry
 
     connect: ->
         unless @q
             @q = promise (resolve, reject)=>
-                (getConnectionPool @delay).connect @url, (connection)=>
+                @connection.connect (connection)=>
                     connection.createChannel().then (@channel)=>
 
                         @channel.assertExchange @replyQ, 'direct', autoDelete: yes, durable: no
@@ -34,6 +40,7 @@ class RpcClient
 
                         @channel.consume(@replyQ, onMsg, noAck: @noAck).then =>
                             log.info "wait for result on queue #{@replyQ}"
+                            @emit 'ready', @replayQ
                             resolve this
                         .then null, (error)->
                             reject error

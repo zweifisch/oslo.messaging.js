@@ -1,21 +1,24 @@
 crypto = require 'crypto'
 kwfn = require 'keyword-arguments'
 
-log = require './logger'
-{getConnectionPool} = require './ConnectionPool'
+Connection = require './Connection'
 
 
 class RpcServer
 
-    constructor: ({@url, @exchange, @topic, @version, @timeout, @ttl, @noAck, @delay})->
+    constructor: ({@url, @exchange, @topic, @version, @timeout, @ttl, @noAck, @delay, @maxRetry})->
         @consumers = {}
         @ttl or= 60000
         @delay or= 1000
+        @maxRetry or= 3
         @replayQ = "reply_#{crypto.randomBytes(16).toString 'hex'}"
+        @connection = new Connection
+            delay: @delay
+            urls: @url
+            maxRetry: @maxRetry
 
     on: (namespace, method, callback)->
-        @connect().then =>
-
+        @connection.connect().then =>
             unless @fanoutQ
                 @fanoutQ = "fanout_#{crypto.randomBytes(16).toString 'hex'}"
                 @channel.assertQueue @fanoutQ, autoDelete: yes, durable: no

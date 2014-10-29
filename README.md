@@ -8,13 +8,13 @@ nodejs client for oslo.messaging
 var messaging = require('oslo.messaging');
 
 var client = new messaging.RpcClient({
-    url: 'amqp://localhost',
+    url: 'amqp://localhost;amqp//10.0.0.10',
     exchange: 'exchange',
     topic: 'topic',
     version: '1.0',
     timeout: 5000,
     noAck: false,
-    delay: 1000 // reconnection delay
+    retryDelay: 3000
 });
 
 context = {}
