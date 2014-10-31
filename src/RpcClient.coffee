@@ -27,7 +27,6 @@ class RpcClient extends EventEmitter
             @q = promise (resolve, reject)=>
                 @connection.connect (connection)=>
                     connection.createChannel().then (@channel)=>
-
                         @channel.assertExchange @replyQ, 'direct', autoDelete: yes, durable: no
                         @channel.assertQueue @replyQ, autoDelete: yes, durable: no, messageTtl: @messageTtl
                         @channel.bindQueue @replyQ, @replyQ, @replyQ

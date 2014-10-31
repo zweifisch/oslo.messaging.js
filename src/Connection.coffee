@@ -34,13 +34,13 @@ class Connection extends EventEmitter
         q.then (connection)=>
             connection.on 'error', (error)=>
                 log.error error
-                @emit 'error', error:error, url: sanitizedUrl
+                @emit 'error', error
                 setTimeout @reconnect, @retryDelay
             log.info "#{sanitizedUrl} connected"
             @emit 'connected', sanitizedUrl
         q.then null, (error)=>
             log.error error
-            @emit 'error', error:error, url: sanitizedUrl
+            @emit 'error', error
             setTimeout @reconnect, @retryDelay
         q
 

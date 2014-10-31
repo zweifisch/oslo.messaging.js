@@ -59,10 +59,7 @@
         return function(connection) {
           connection.on('error', function(error) {
             log.error(error);
-            _this.emit('error', {
-              error: error,
-              url: sanitizedUrl
-            });
+            _this.emit('error', error);
             return setTimeout(_this.reconnect, _this.retryDelay);
           });
           log.info("" + sanitizedUrl + " connected");
@@ -72,10 +69,7 @@
       q.then(null, (function(_this) {
         return function(error) {
           log.error(error);
-          _this.emit('error', {
-            error: error,
-            url: sanitizedUrl
-          });
+          _this.emit('error', error);
           return setTimeout(_this.reconnect, _this.retryDelay);
         };
       })(this));
