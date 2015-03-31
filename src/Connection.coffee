@@ -9,7 +9,7 @@ sanitize = (url)->
 
 class Connection extends EventEmitter
 
-    constructor: ({@retryDelay, urls, @maxRetry})->
+    constructor: ({@retryDelay, urls, @maxRetry, @heartbeat})->
         throw new Error "urls must be string" unless 'string' is typeof urls
         throw new Error "urls is empty" unless urls.length
         @urls = urls.split ';'
@@ -30,7 +30,7 @@ class Connection extends EventEmitter
         log.debug "connecting url #{url}"
         sanitizedUrl = sanitize url
         @emit 'connecting', url: sanitizedUrl
-        q = amqp.connect url
+        q = amqp.connect url, heartbeat: @heartbeat
         q.then (connection)=>
             connection.on 'error', (error)=>
                 log.error error
@@ -69,12 +69,13 @@ class Connection extends EventEmitter
 
 connections = {}
 
-Connection.getConnection = ({urls, retryDelay, maxRetry})->
+Connection.getConnection = ({urls, retryDelay, maxRetry, heartbeat})->
     if not connections[urls]
         connections[urls] = new Connection
             urls: urls
             retryDelay: retryDelay
             maxRetry: maxRetry
+            heartbeat: heartbeat
     connections[urls]
 
 module.exports = Connection
