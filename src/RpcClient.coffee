@@ -10,19 +10,19 @@ Connection = require './Connection'
 
 class RpcClient extends EventEmitter
 
-    constructor: ({@url, @exchange, @topic, @version, @timeout, @ttl, @noAck, @retryDelay, @messageTtl, @maxRetry, @heartbeat})->
+    constructor: ({@url, @exchange, @topic, @version, @timeout, @ttl, @noAck, @retryDelay, @messageTtl, @maxRetry, @connectionTimeout})->
         @consumers = {}
         @ttl or= 60000
         @retryDelay or= 3000
         @maxRetry or= 3
-        @heartbeat or= 10
+        @connectionTimeout or= 10
         @replyQ = "reply_#{crypto.randomBytes(16).toString 'hex'}"
         log.debug "queue: #{@replyQ}"
         @connection = Connection.getConnection
             retryDelay: @retryDelay
             urls: @url
             maxRetry: @maxRetry
-            heartbeat: @heartbeat
+            timeout: @connectionTimeout
 
     connect: ->
         unless @q

@@ -8,17 +8,17 @@ Connection = require './Connection'
 
 class Notifier extends EventEmitter
 
-    constructor: ({@url, @prefix, @topic, @exchange, @retryDelay, @noAck, @queue, @maxRetry, @heartbeat})->
+    constructor: ({@url, @prefix, @topic, @exchange, @retryDelay, @noAck, @queue, @maxRetry, @connectionTimeout})->
         @retryDelay ?= 3000
         @maxRetry ?= 3
-        @heartbeat ?= 10
+        @connectionTimeout ?= 10
         @queue ?= "#{@prefix || 'notifier'}_#{crypto.randomBytes(16).toString 'hex'}"
         log.debug "queue: #{@queue}"
         @connection = Connection.getConnection
             retryDelay: @retryDelay
             urls: @url
             maxRetry: @maxRetry
-            heartbeat: @heartbeat
+            timeout: @connectionTimeout
 
     connect: ->
         unless @q
