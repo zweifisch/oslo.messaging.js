@@ -1,6 +1,6 @@
 {
   "name": "oslo.messaging",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "nodejs client for oslo.messaging",
   "main": "index.js",
   "scripts": {
@@ -9,11 +9,11 @@
   "author": "zf",
   "license": "MIT",
   "dependencies": {
-    "amqplib": "^0.3.0",
-    "debug": "^1.0.4",
+    "amqplib": "0.3.2",
+    "debug": "2.2.0",
     "keyword-arguments": "0.0.0",
     "too-late": "0.1.1",
-    "when": "^3.2.2"
+    "when": "3.7.3"
   },
   "devDependencies": {},
   "repository": {

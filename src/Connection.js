@@ -28,7 +28,7 @@
       if (!urls.length) {
         throw new Error("urls is empty");
       }
-      this.urls = urls.split(';');
+      this.urls = urls.split(/[;,]/);
       this.callbacks = [];
       this.urlIndex = 0;
       this.retried = 0;
@@ -49,7 +49,7 @@
 
     Connection.prototype._connect = function(url) {
       var q, sanitizedUrl;
-      log.debug("connecting url " + url);
+      log.debug("connecting url " + url + " timeout " + this.timeout);
       sanitizedUrl = sanitize(url);
       this.emit('connecting', {
         url: sanitizedUrl
@@ -67,8 +67,7 @@
           log.info(sanitizedUrl + " connected");
           return _this.emit('connected', sanitizedUrl);
         };
-      })(this));
-      q.then(null, (function(_this) {
+      })(this))["catch"]((function(_this) {
         return function(error) {
           log.error(error);
           _this.emit('error', error);
@@ -131,7 +130,7 @@
         urls: urls,
         retryDelay: retryDelay,
         maxRetry: maxRetry,
-        timeout: timeout
+        timeout: timeout * 1000
       });
     }
     return connections[urls];

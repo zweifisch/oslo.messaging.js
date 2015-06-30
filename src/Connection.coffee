@@ -12,7 +12,7 @@ class Connection extends EventEmitter
     constructor: ({@retryDelay, urls, @maxRetry, @timeout})->
         throw new Error "urls must be string" unless 'string' is typeof urls
         throw new Error "urls is empty" unless urls.length
-        @urls = urls.split ';'
+        @urls = urls.split /[;,]/
         @callbacks = []
         @urlIndex = 0
         @retried = 0
@@ -27,7 +27,7 @@ class Connection extends EventEmitter
         @connectionPromise.then callback
 
     _connect: (url)->
-        log.debug "connecting url #{url}"
+        log.debug "connecting url #{url} timeout #{@timeout}"
         sanitizedUrl = sanitize url
         @emit 'connecting', url: sanitizedUrl
         q = amqp.connect url, timeout: @timeout
@@ -38,7 +38,7 @@ class Connection extends EventEmitter
                 setTimeout @reconnect, @retryDelay
             log.info "#{sanitizedUrl} connected"
             @emit 'connected', sanitizedUrl
-        q.then null, (error)=>
+        .catch (error)=>
             log.error error
             @emit 'error', error
             setTimeout @reconnect, @retryDelay
@@ -75,7 +75,7 @@ Connection.getConnection = ({urls, retryDelay, maxRetry, timeout})->
             urls: urls
             retryDelay: retryDelay
             maxRetry: maxRetry
-            timeout: timeout
+            timeout: timeout * 1000
     connections[urls]
 
 module.exports = Connection
