@@ -1,10 +1,11 @@
 crypto = require 'crypto'
+{EventEmitter} = require 'events'
 
 log = require('./logger') 'notifier'
 ConnectionManager = require './ConnectionManager'
 
 
-class Notifier
+class Notifier extends EventEmitter
 
     constructor: ({@url, @topic, @exchange, @queue, @noAck, retryDelay , maxRetry, connectionTimeout, prefix})->
         @queue ?= "#{prefix or 'notifier'}_#{crypto.randomBytes(16).toString 'hex'}"
@@ -37,7 +38,11 @@ class Notifier
                 , noAck: @noAck
             .then =>
                 log.info "wait for notification on queue #{@queue}"
-                channel.on 'error', => @connect
+                channel.on 'error', (e)=>
+                    @q = null
+                    @connect()
+                    @emit "error", e
+                    log.error "about to recreate channel, error in channel", e
                 this
 
     connect: ->

@@ -1,3 +1,5 @@
 *.coffee
 .travis.yml
 *.tgz
+*.md
+*.org

@@ -15,8 +15,8 @@ var client = new messaging.RpcClient({
     topic: 'topic',
     version: '1.0',
     timeout: 5000,
-    noAck: false,
-    retryDelay: 3000
+    retryDelay: 3000,
+    noAck: false
 });
 
 context = {}

@@ -1,0 +1,89 @@
+
+#+BEGIN_SRC javascript
+{
+    "_context_domain": null,
+    "_context_request_id": "req-da5176ba-0158-4f84-b84e-4af6f68dc431",
+    "event_type": "port.create.start",
+    "timestamp": "2015-07-14 07:05:45.524397",
+    "_unique_id": "e2b84989b43c4e0d99cd21268adb8751",
+    "_context_resource_uuid": null,
+    "payload": {
+        "service": "network.localhost.localdomain",
+        "network_id": "a0125f86-7b49-4e48-9769-7be72e18c3eb",
+        "tenant_id": "1043fa0ed50541bf8f7823f2522c3e66",
+        "generated": "2015-07-14T07:05:45.440900",
+        "request_id": "req-759c5d87-58d9-4d4a-aaa2-be2b362a5f52",
+        "project_id": "1043fa0ed50541bf8f7823f2522c3e66",
+        "message_id": "faca2ab6-2a83-412e-84f9-d1238f283b9c",
+        "device_id": "a018b3a6-5212-4926-83e1-1df8723fc693"
+    },
+    "_context_auth_token": null,
+    "_context_user_identity": "- - - - -",
+    "_context_show_deleted": false,
+    "_context_tenant": null,
+    "priority": "INFO",
+    "_context_read_only": false,
+    "_context_is_admin": false,
+    "_context_project_domain": null,
+    "_context_user": null,
+    "_context_user_domain": null,
+    "publisher_id": "localhost.localdomain",
+    "message_id": "20fa5449-fc4c-400c-9e4d-8c27a3f5f8b3"
+}
+#+END_SRC
+
+#+BEGIN_SRC javascript
+{
+    "_context_domain": null,
+    "_context_request_id": "req-5de436bb-3fab-4400-a819-8739c457c56f",
+    "event_type": "compute.instance.delete.start",
+    "timestamp": "2015-07-14 02:26:05.574009",
+    "_unique_id": "e47e04c83dd946c5ab4312a01001562a",
+    "_context_read_only": false,
+    "_context_instance_uuid": null,
+    "payload": {
+        "message_id": "80b8a3bf-7375-4257-a208-fb3b40742332",
+        "project_id": "47949c4bd9b8409eaf0691c2636fa993",
+        "user_id": "956549333a974dd4a52ad46dc6c2faa1",
+        "region_id": "RegionOne",
+        "service": "compute.cns-2",
+        "resource_event": "compute.instance.delete",
+        "tenant_id": "47949c4bd9b8409eaf0691c2636fa993",
+        "instance_flavor_id": "2",
+        "created": "2015-07-09T06:47:03.000000",
+        "instance_type_id": 5,
+        "generated": "2015-07-14T02:26:06.593696",
+        "launched_at": "2015-07-09T06:47:49.000000",
+        "instance_type": "m1.small",
+        "state": "soft-delete",
+        "image_meta": {
+            "container_format": "bare",
+            "min_ram": "0",
+            "disk_format": "qcow2",
+            "base_image_name": "CentOS 7.0 64bit",
+            "kt_os_version": "7.0",
+            "kt_os_type": "centos",
+            "min_disk": "30",
+            "vertical_extend": "true",
+            "base_image_ref": "b440e520-da9e-4e08-a80c-241e4999ce7d"
+        },
+        "request_id": "req-b986ea01-9584-4b2b-a7d9-5591da8bc219",
+        "deleted_at": "2015-07-10T10:03:45.000000",
+        "name": "admin",
+        "id": "0359debb-fb5e-43ea-8c3d-1eb0de44f287",
+        "resource_type": "instance",
+        "metadata": {}
+    },
+    "_context_auth_token": null,
+    "_context_user_identity": "- - - - -",
+    "_context_show_deleted": false,
+    "_context_tenant": null,
+    "priority": "INFO",
+    "_context_is_admin": false,
+    "_context_project_domain": null,
+    "_context_user": null,
+    "_context_user_domain": null,
+    "publisher_id": "stackbiz.events",
+    "message_id": "9e36ce14-a3e3-4c92-9b3c-0a5b4ce4ed8e"
+}
+#+END_SRC
