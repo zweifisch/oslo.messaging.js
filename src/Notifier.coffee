@@ -1,65 +1,49 @@
 crypto = require 'crypto'
-{EventEmitter} = require 'events'
-{promise} = require 'when'
 
 log = require('./logger') 'notifier'
-Connection = require './Connection'
+ConnectionManager = require './ConnectionManager'
 
 
-class Notifier extends EventEmitter
+class Notifier
 
-    constructor: ({@url, @prefix, @topic, @exchange, @retryDelay, @noAck, @queue, @maxRetry, @connectionTimeout})->
-        @retryDelay ?= 3000
-        @maxRetry ?= 3
-        @connectionTimeout ?= 10
-        @queue ?= "#{@prefix || 'notifier'}_#{crypto.randomBytes(16).toString 'hex'}"
+    constructor: ({@url, @topic, @exchange, @queue, @noAck, retryDelay , maxRetry, connectionTimeout, prefix})->
+        @queue ?= "#{prefix or 'notifier'}_#{crypto.randomBytes(16).toString 'hex'}"
         log.debug "queue: #{@queue}"
-        @connection = Connection.getConnection
-            retryDelay: @retryDelay
+        @connection = ConnectionManager.getConnection
+            retryDelay: retryDelay or 3000
             urls: @url
-            maxRetry: @maxRetry
-            timeout: @connectionTimeout
+            maxRetry: maxRetry or 3
+            timeout: connectionTimeout or 10
+        @connection.on 'reconnected', @setup
+
+    setup: (conn)=>
+
+        conn.createChannel().then (channel)=>
+
+            channel.assertExchange @exchange, 'topic',
+                autoDelete: no, durable: no
+            .then =>
+                log.info "exchange #{@exchange} asserted"
+                channel.assertQueue @queue, autoDelete: yes, durable: no
+            .then =>
+                log.info "queue #{@queue} asserted"
+                channel.bindQueue @queue, @exchange, @topic
+            .then =>
+                log.info "topic #{@topic} binded"
+                channel.consume @queue, (msg)=>
+                    decoded = JSON.parse msg.content.toString()
+                    log.debug decoded
+                    @consume decoded, => channel.ack msg
+                , noAck: @noAck
+            .then =>
+                log.info "wait for notification on queue #{@queue}"
+                channel.on 'error', => @connect
+                this
 
     connect: ->
-        unless @q
-            @q = promise (resolve, reject)=>
-                @connection.connect (connection)=>
-                    connection.createChannel().then (@channel)=>
-
-                        @channel.assertExchange @exchange, 'topic', autoDelete: no, durable: no
-                        .then => log.info "exchange #{@exchange} asserted"
-                        .then null, (error)=>
-                            @emit 'error', error
-
-                        @channel.assertQueue @queue, autoDelete: yes, durable: no
-                        .then => log.info "queue #{@queue} asserted"
-                        .then null, (error)=>
-                            @emit 'error', error
-
-                        @channel.bindQueue @queue, @exchange, @topic
-                        .then => log.info "topic #{@topic} binded"
-                        .then null, (error)=>
-                            @emit 'error', error
-
-                        consumer = (msg)=>
-                            decoded = JSON.parse msg.content.toString()
-                            log.debug decoded
-                            if @noAck
-                                @callback decoded
-                            else
-                                @callback decoded, => @channel.ack msg
-
-                        consumeQ = @channel.consume @queue, consumer, noAck: @noAck
-                        consumeQ.then =>
-                            log.info "wait for notification on queue #{@queue}"
-                            @emit 'ready', @queue
-                            resolve this
-                        consumeQ.then null, (error)=>
-                            @emit 'error', error
-                            reject error
-        @q
+        @q or= @connection.connect().then @setup
 
     onMessage: (callback)->
-        @callback = callback
+        @consume = callback
 
 module.exports = Notifier

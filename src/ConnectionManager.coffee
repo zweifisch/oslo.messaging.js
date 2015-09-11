@@ -7,24 +7,25 @@ sanitize = (url)->
     url.replace /\/\/[^@]*@/, '//<sanitized>@'
 
 
-class Connection extends EventEmitter
+class ConnectionManager extends EventEmitter
 
     constructor: ({@retryDelay, urls, @maxRetry, @timeout})->
         throw new Error "urls must be string" unless 'string' is typeof urls
         throw new Error "urls is empty" unless urls.length
         @urls = urls.split /[;,]/
-        @callbacks = []
         @urlIndex = 0
         @retried = 0
         log.debug "urls #{urls}"
         log.debug "maxRetry #{@maxRetry}"
 
-    connect: (callback)->
-        @callbacks.push callback
+    connect: ->
         if @connectionPromise
             log.debug 'connection available'
-        @connectionPromise = @_connect @getCurrentUrl() unless @connectionPromise
-        @connectionPromise.then callback
+        else
+            @connectionPromise = @_connect @getCurrentUrl() 
+            @connectionPromise.then (conn)=>
+                @emit "connected", conn
+        @connectionPromise
 
     _connect: (url)->
         log.debug "connecting url #{url} timeout #{@timeout}"
@@ -37,7 +38,6 @@ class Connection extends EventEmitter
                 @emit 'error', error
                 setTimeout @reconnect, @retryDelay
             log.info "#{sanitizedUrl} connected"
-            @emit 'connected', sanitizedUrl
         .catch (error)=>
             log.error error
             @emit 'error', error
@@ -53,8 +53,8 @@ class Connection extends EventEmitter
         else
             url = @getCurrentUrl()
         @connectionPromise = @_connect url
-        @connectionPromise.then (connection)=>
-            callback connection for callback in @callbacks
+        @connectionPromise.then (conn)=>
+            @emit "reconnected", conn
 
     getNextUrl: ->
         @urlIndex += 1
@@ -69,13 +69,13 @@ class Connection extends EventEmitter
 
 connections = {}
 
-Connection.getConnection = ({urls, retryDelay, maxRetry, timeout})->
+ConnectionManager.getConnection = ({urls, retryDelay, maxRetry, timeout})->
     if not connections[urls]
-        connections[urls] = new Connection
+        connections[urls] = new ConnectionManager
             urls: urls
             retryDelay: retryDelay
             maxRetry: maxRetry
             timeout: timeout * 1000
     connections[urls]
 
-module.exports = Connection
+module.exports = ConnectionManager
