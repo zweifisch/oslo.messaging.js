@@ -1,5 +1,7 @@
 # oslo.messaging.js
 
+[![NPM Version][npm-image]][npm-url]
+
 nodejs client for oslo.messaging
 
 ## usage
@@ -25,3 +27,6 @@ client.call('name.space', context, 'method', {param: 1, param2: false}).then(fun
     console.log(err);
 });
 ```
+
+[npm-image]: https://img.shields.io/npm/v/oslo.messaging.svg?style=flat
+[npm-url]: https://npmjs.org/package/oslo.messaging
