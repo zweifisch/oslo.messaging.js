@@ -55,6 +55,8 @@ class RpcClient extends EventEmitter
 
     call: (namespace, context, method, args)->
         log.debug "calling", namespace, method, context, args
+        @connect().catch =>
+            @q = null
         @connect().then =>
             msgId = crypto.randomBytes(16).toString 'hex'
             payload =
