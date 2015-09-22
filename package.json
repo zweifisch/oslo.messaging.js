@@ -1,6 +1,6 @@
 {
   "name": "oslo.messaging",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "nodejs client for oslo.messaging",
   "main": "index.js",
   "scripts": {
@@ -11,13 +11,13 @@
   "author": "zf",
   "license": "MIT",
   "dependencies": {
-    "amqplib": "0.3.2",
+    "amqplib": "0.4.0",
     "debug": "2.2.0",
     "keyword-arguments": "0.0.0",
     "too-late": "0.1.1"
   },
   "devDependencies": {
-    "coffee-script": "^1.10.0"
+    "coffee-script": "1.10.0"
   },
   "repository": {
     "type": "git",

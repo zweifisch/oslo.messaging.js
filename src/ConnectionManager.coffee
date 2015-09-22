@@ -75,7 +75,7 @@ ConnectionManager.getConnection = ({urls, retryDelay, maxRetry, timeout})->
             urls: urls
             retryDelay: retryDelay
             maxRetry: maxRetry
-            timeout: timeout * 1000
+            timeout: timeout or 10000
     connections[urls]
 
 module.exports = ConnectionManager

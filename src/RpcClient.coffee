@@ -24,7 +24,7 @@ class RpcClient extends EventEmitter
             retryDelay: retryDelay or 3000
             urls: @url
             maxRetry: maxRetry or 3
-            timeout: connectionTimeout or 10
+            timeout: connectionTimeout
 
     setup: (conn)=>
 
