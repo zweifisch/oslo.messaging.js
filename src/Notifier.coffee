@@ -40,13 +40,17 @@ class Notifier extends EventEmitter
                 log.info "wait for notification on queue #{@queue}"
                 channel.on 'error', (e)=>
                     @q = null
-                    @connect()
+                    @connect yes
                     @emit "error", e
                     log.error "about to recreate channel, error in channel", e
+                channel.on 'close', =>
+                    @q = null
+                    @connect yes
+                    log.error "about to recreate channel, channel closed"
                 this
 
-    connect: ->
-        @q or= @connection.connect().then @setup
+    connect: (force)->
+        @q or= @connection.connect(force).then @setup
 
     onMessage: (callback)->
         @consume = callback

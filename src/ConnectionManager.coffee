@@ -18,8 +18,8 @@ class ConnectionManager extends EventEmitter
         log.debug "urls #{urls}"
         log.debug "maxRetry #{@maxRetry}"
 
-    connect: ->
-        if @connectionPromise
+    connect: (force)->
+        if @connectionPromise and not force
             log.debug 'connection available'
         else
             @connectionPromise = @_connect @getCurrentUrl() 
@@ -70,12 +70,10 @@ class ConnectionManager extends EventEmitter
 connections = {}
 
 ConnectionManager.getConnection = ({urls, retryDelay, maxRetry, timeout})->
-    if not connections[urls]
-        connections[urls] = new ConnectionManager
-            urls: urls
-            retryDelay: retryDelay
-            maxRetry: maxRetry
-            timeout: timeout or 10000
-    connections[urls]
+    new ConnectionManager
+        urls: urls
+        retryDelay: retryDelay
+        maxRetry: maxRetry
+        timeout: timeout or 10000
 
 module.exports = ConnectionManager

@@ -45,13 +45,17 @@ class RpcClient extends EventEmitter
                 log.info "wait for result on queue #{@replyQ}"
                 @channel.on 'error', (e)=>
                     @q = null
-                    @connect()
+                    @connect yes
                     @emit "error", e
                     log.error "about to recreate channel, error in channel", e
+                @channel.on 'close', =>
+                    @q = null
+                    @connect yes
+                    log.error "about to recreate channel, channel closed"
                 this
 
-    connect: ->
-        @q or= @connection.connect().then @setup
+    connect: (force)->
+        @q or= @connection.connect(force).then @setup
 
     call: (namespace, context, method, args)->
         log.debug "calling", namespace, method, context, args
@@ -89,8 +93,8 @@ class RpcClient extends EventEmitter
                 @q = null
                 @emit "error", e
                 log.error "failed to publish, about to recreat channel", e
-                @connect()
-                # return Promise.reject message: "Failed to Publish", message_id: msgId
+                @connect(yes)
+                return Promise.reject message: "Publish Failed, Please Retry", message_id: msgId
 
             new Promise (resolve, reject)=>
                 signal.waitfor msgId, (data)->

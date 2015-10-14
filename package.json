@@ -1,6 +1,6 @@
 {
   "name": "oslo.messaging",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "nodejs client for oslo.messaging",
   "main": "index.js",
   "scripts": {
