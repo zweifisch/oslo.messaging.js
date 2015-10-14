@@ -25,10 +25,11 @@ class RpcClient extends EventEmitter
             urls: @url
             maxRetry: maxRetry or 3
             timeout: connectionTimeout
+        @connection.on 'reconnected', @setup
 
     setup: (conn)=>
 
-        conn.createChannel().then (@channel)=>
+        @q = conn.createChannel().then (@channel)=>
             log.info "channel created"
             @channel.assertExchange @replyQ, 'direct',
                 autoDelete: yes, durable: no
@@ -44,23 +45,22 @@ class RpcClient extends EventEmitter
             .then =>
                 log.info "wait for result on queue #{@replyQ}"
                 @channel.on 'error', (e)=>
-                    @q = null
-                    @connect yes
+                    @reconnect()
                     @emit "error", e
                     log.error "about to recreate channel, error in channel", e
                 @channel.on 'close', =>
-                    @q = null
-                    @connect yes
+                    @reconnect()
                     log.error "about to recreate channel, channel closed"
                 this
 
-    connect: (force)->
-        @q or= @connection.connect(force).then @setup
+    connect: ->
+        @q or @q = @connection.connect().then @setup
+
+    reconnect: ->
+        @q = @connection.connect yes
 
     call: (namespace, context, method, args)->
         log.debug "calling", namespace, method, context, args
-        @connect().catch =>
-            @q = null
         @connect().then =>
             msgId = crypto.randomBytes(16).toString 'hex'
             payload =
@@ -90,10 +90,9 @@ class RpcClient extends EventEmitter
                     priority: 0
                     deliveryMode: 2
             catch e
-                @q = null
+                @reconnect()
                 @emit "error", e
                 log.error "failed to publish, about to recreat channel", e
-                @connect(yes)
                 return Promise.reject message: "Publish Failed, Please Retry", message_id: msgId
 
             new Promise (resolve, reject)=>

@@ -19,7 +19,7 @@ class Notifier extends EventEmitter
 
     setup: (conn)=>
 
-        conn.createChannel().then (channel)=>
+        @q = conn.createChannel().then (channel)=>
 
             channel.assertExchange @exchange, 'topic',
                 autoDelete: no, durable: no
@@ -39,18 +39,19 @@ class Notifier extends EventEmitter
             .then =>
                 log.info "wait for notification on queue #{@queue}"
                 channel.on 'error', (e)=>
-                    @q = null
-                    @connect yes
+                    @reconnect()
                     @emit "error", e
                     log.error "about to recreate channel, error in channel", e
                 channel.on 'close', =>
-                    @q = null
-                    @connect yes
+                    @reconnect()
                     log.error "about to recreate channel, channel closed"
                 this
 
-    connect: (force)->
-        @q or= @connection.connect(force).then @setup
+    connect: ->
+        @q or @q = @connection.connect().then @setup
+
+    reconnect: ->
+        @q = @connection.connect yes
 
     onMessage: (callback)->
         @consume = callback
