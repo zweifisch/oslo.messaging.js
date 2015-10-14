@@ -38,11 +38,11 @@ class Notifier extends EventEmitter
                 , noAck: @noAck
             .then =>
                 log.info "wait for notification on queue #{@queue}"
-                channel.on 'error', (e)=>
+                channel.once 'error', (e)=>
                     @reconnect()
                     @emit "error", e
                     log.error "about to recreate channel, error in channel", e
-                channel.on 'close', =>
+                channel.once 'close', =>
                     @reconnect()
                     log.error "about to recreate channel, channel closed"
                 this
@@ -51,7 +51,7 @@ class Notifier extends EventEmitter
         @q or @q = @connection.connect().then @setup
 
     reconnect: ->
-        @q = @connection.connect yes
+        @q = @connection.connect()
 
     onMessage: (callback)->
         @consume = callback

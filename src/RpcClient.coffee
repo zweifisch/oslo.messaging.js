@@ -44,11 +44,11 @@ class RpcClient extends EventEmitter
                 @channel.consume @replyQ, onMsg, noAck: @noAck
             .then =>
                 log.info "wait for result on queue #{@replyQ}"
-                @channel.on 'error', (e)=>
+                @channel.once 'error', (e)=>
                     @reconnect()
                     @emit "error", e
                     log.error "about to recreate channel, error in channel", e
-                @channel.on 'close', =>
+                @channel.once 'close', =>
                     @reconnect()
                     log.error "about to recreate channel, channel closed"
                 this
@@ -57,7 +57,7 @@ class RpcClient extends EventEmitter
         @q or @q = @connection.connect().then @setup
 
     reconnect: ->
-        @q = @connection.connect yes
+        @q = @connection.connect()
 
     call: (namespace, context, method, args)->
         log.debug "calling", namespace, method, context, args

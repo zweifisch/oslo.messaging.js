@@ -18,8 +18,8 @@ class ConnectionManager extends EventEmitter
         log.debug "urls #{urls}"
         log.debug "maxRetry #{@maxRetry}"
 
-    connect: (force)->
-        if @connectionPromise and not force
+    connect: ->
+        if @connectionPromise
             log.debug 'connection available'
         else
             @connectionPromise = @_connect @getCurrentUrl() 
@@ -33,9 +33,12 @@ class ConnectionManager extends EventEmitter
         @emit 'connecting', url: sanitizedUrl
         q = amqp.connect url, timeout: @timeout
         q.then (connection)=>
-            connection.on 'error', (error)=>
+            connection.once 'error', (error)=>
                 log.error error
                 @emit 'error', error
+                setTimeout @reconnect, @retryDelay
+            connection.once 'close', =>
+                log.error "connection closed"
                 setTimeout @reconnect, @retryDelay
             log.info "#{sanitizedUrl} connected"
         .catch (error)=>
