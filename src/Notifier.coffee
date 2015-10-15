@@ -39,12 +39,10 @@ class Notifier extends EventEmitter
             .then =>
                 log.info "wait for notification on queue #{@queue}"
                 channel.once 'error', (e)=>
-                    @reconnect()
                     @emit "error", e
-                    log.error "about to recreate channel, error in channel", e
                 channel.once 'close', =>
-                    @reconnect()
                     log.error "about to recreate channel, channel closed"
+                    @reconnect()
                 this
 
     connect: ->
